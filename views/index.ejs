@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Health Check</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 30px;
+      color: #111827;
+    }
+
+    h1 {
+      margin-bottom: 25px;
+      font-size: 26px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .container {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-left {
+      flex: 2;
+      min-width: 500px;
+    }
+
+    .card-right {
+      flex: 1;
+      min-width: 320px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: left;
+      background: #f9fafb;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: #f9fafb;
+    }
+
+    .status-up {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+    .status-down {
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    input {
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-add {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    .btn-add:hover {
+      background: #1e40af;
+    }
+
+    .btn-delete {
+      background: #dc2626;
+      color: #ffffff;
+      font-size: 12px;
+    }
+
+    .btn-delete:hover {
+      background: #b91c1c;
+    }
+
+    .btn-reload {
+      background: #4b5563;
+      color: #ffffff;
+      margin-bottom: 15px;
+    }
+
+    .btn-reload:hover {
+      background: #374151;
+    }
+
+    .info-note {
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .warning {
+      color: #dc2626;
+    }
+
+    a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+
+</head>
+
+<body>
+  <h1>Health Check Dashboard</h1>
+
+  <div class="container">
+
+    <div class="card card-left">
+      <h2>Website (<%= states ? states.length : 0 %>/10)</h2>
+
+      <form method="POST" action="/add-site">
+        <input type="text" name="url" placeholder="https://example.com" style="width: 60%; margin-right: 10px;" required
+          <%=(states && states.length>= 10) ? 'disabled' : '' %> />
+        <button type="submit" class="btn btn-add" <%=(states && states.length>= 10) ? 'disabled' : '' %>>
+          Thêm
+        </button>
+
+        <% if (states && states.length>= 10) { %>
+          <div class="info-note warning">
+            Đã đạt giới hạn tối đa 10 website
+          </div>
+          <% } %>
+      </form>
+
+      <button id="btnCheck" onclick="checkAll()" class="btn btn-reload">
+        Cập nhật trạng thái
+      </button>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>URL</th>
+            <th>Trạng thái</th>
+            <th>Lần kiểm tra</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (states && states.length) { %>
+            <% states.forEach(function(item, idx) { %>
+              <tr>
+                <td>
+                  <%= idx + 1 %>
+                </td>
+                <td>
+                  <a href="<%= item.url %>" target="_blank">
+                    <%= item.url %>
+                  </a>
+                </td>
+                <td class="status-<%= item.state === 'UP' ? 'up' : 'down' %>">
+                  <%= item.state==='UP' ? 'Hoạt động' : 'Lỗi' %>
+                </td>
+                <td>
+                  <%= item.lastUpdate ? new Date(item.lastUpdate).toLocaleString('vi-VN') : '-' %>
+                </td>
+                <td>
+                  <form method="POST" action="/delete-site">
+                    <input type="hidden" name="url" value="<%= item.url %>" />
+                    <button type="submit" class="btn btn-delete">
+                      Xóa
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">Không có dữ liệu</td>
+                  </tr>
+                  <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card card-right">
+      <h2>Email thông báo (<%= emails ? emails.length : 0 %>/3)</h2>
+
+      <form method="POST" action="/add-email">
+        <input type="email" name="email" placeholder="email@example.com" style="width: 70%; margin-right: 8px;" required
+          <%=(emails && emails.length>= 3) ? 'disabled' : '' %> />
+        <button type="submit" class="btn btn-add" <%=(emails && emails.length>= 3) ? 'disabled' : '' %>>
+          Thêm
+        </button>
+
+        <% if (emails && emails.length>= 3) { %>
+          <div class="info-note warning">
+            Đã đạt giới hạn tối đa 3 email
+          </div>
+          <% } %>
+      </form>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Email</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (emails && emails.length) { %>
+            <% emails.forEach(function(email, idx) { %>
+              <tr>
+                <td>
+                  <%= idx + 1 %>
+                </td>
+                <td>
+                  <%= email %>
+                </td>
+                <td>
+                  <form method="POST" action="/delete-email">
+                    <input type="hidden" name="email" value="<%= email %>" />
+                    <button type="submit" class="btn btn-delete">
+                      Xóa
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="3">Chưa có email</td>
+                  </tr>
+                  <% } %>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</body>
+
+<script>
+  async function checkAll() {
+    const btn = document.getElementById('btnCheck');
+    btn.disabled = true;
+    btn.textContent = 'Đang kiểm tra...';
+
+    try {
+      const res = await fetch('/check-all', { method: 'POST' });
+      const data = await res.json();
+      if (data.ok) {
+        window.location.reload();
+      } else {
+        alert('Lỗi: ' + (data.error || 'Không xác định'));
+        btn.disabled = false;
+        btn.textContent = 'Cập nhật trạng thái';
+      }
+    } catch (err) {
+      alert('Lỗi kết nối: ' + err.message);
+      btn.disabled = false;
+      btn.textContent = 'Cập nhật trạng thái';
+    }
+  }
+</script>
+
+</html>

@@ -3,18 +3,22 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon ./bin/www"
+    "dev": "nodemon --ignore health_state.json --ignore health_log.txt ./bin/www"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "axios": "^1.13.2",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^17.2.3",
+    "ejs": "^4.0.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
+    "mailtrap": "^4.4.0",
     "morgan": "~1.9.1",
     "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.3",
     "nodemon": "^3.1.11"
   }
 }
