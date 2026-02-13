@@ -8,7 +8,6 @@ const SITES_FILE = path.join(__dirname, "../health_sites.json");
 const STATE_FILE = path.join(__dirname, "../health_state.json");
 
 class Service {
-  // Lấy danh sách website từ file (KHÔNG hardcode)
   async getUrlsToCheck() {
     try {
       const data = await fs.readFile(SITES_FILE, "utf-8");
@@ -18,7 +17,6 @@ class Service {
     }
   }
 
-  // Lấy trạng thái trước đó của website
   async getState(url) {
     try {
       const data = await fs.readFile(STATE_FILE, "utf-8");
@@ -29,7 +27,6 @@ class Service {
     }
   }
 
-  // Ghi trạng thái + thời gian check
   async setState(url, state) {
     try {
       let states = {};
@@ -51,7 +48,6 @@ class Service {
     }
   }
 
-  // Check 1 website
   async checkWebsite(url) {
     const previousState = await this.getState(url);
 
@@ -67,7 +63,6 @@ class Service {
       });
 
       if (res.status >= 200 && res.status < 400) {
-        // Website UP
         if (previousState === "DOWN") {
           await sendErrorEmail(
             `✅ Website phục hồi: ${url}`,
@@ -92,7 +87,6 @@ class Service {
         };
       }
 
-      // HTTP lỗi (>= 400)
       throw { response: res };
     } catch (err) {
       let message = "";
@@ -127,7 +121,6 @@ class Service {
     }
   }
 
-  // Check toàn bộ website
   async checkAll() {
     const urls = await this.getUrlsToCheck();
     const results = [];

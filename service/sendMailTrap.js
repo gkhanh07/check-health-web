@@ -10,7 +10,6 @@ const EMAILS_FILE = path.join(__dirname, "../health_emails.json");
 const client = new MailtrapClient({ token: TOKEN });
 const sender = { name: "Thông Báo Tình Trạng Website", email: SENDER_EMAIL };
 
-// Đọc danh sách email từ file
 async function getRecipientEmails() {
   try {
     const data = await fs.readFile(EMAILS_FILE, "utf-8");
