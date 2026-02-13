@@ -16,7 +16,7 @@ async function getUrls() {
 }
 
 function startHealthCheckJob() {
-  cron.schedule("*/10 * * * *", async () => {
+  cron.schedule("*/10 * * * * *", async () => {
     console.log("[HealthCheck] Bắt đầu kiểm tra:", new Date().toISOString());
     const urls = await getUrls();
     for (const url of urls) {
